@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=users
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./dbdata:/var/lib/postgresql/data 
+    
+  users-micro:
+    container_name: users-micro
+    build: .
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+    environment:
+      - PORT=4004
+    ports:
+      - '4004:4004'
+    depends_on:
+      - postgres

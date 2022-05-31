@@ -16,6 +16,7 @@ model User{
   email String @db.VarChar(120)
   password String
   library Library?
+  playlists Playlist[]
 }
 
 model Library{
@@ -49,6 +50,8 @@ model Playlist{
   id Int @id @default(autoincrement())
   name String
   songs PlaylistWithSongs[]
+  owner User @relation(fields: [ownerId], references: [id]) 
+  ownerId Int
 }
 
 model Author{

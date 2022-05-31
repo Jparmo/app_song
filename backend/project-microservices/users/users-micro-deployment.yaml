@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: users 
+  labels:
+    micro: users 
+spec:
+  selector: #anadir etiquetas
+    matchLabels: #generar varios pods identificar que pods pertenecen a ese selector
+      micro: users #puso misma etiqueta que en las labels pero puede ser diferente
+  replicas: 3
+  template: #definicion del pod, metadata y todo eso
+    metadata:
+      name: users #debe de tener el label que le puse en matchlabels
+      labels:
+        micro: users
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          imagePullPolicy: IfNotPresent #descargar la imagen sino esta en local
+          env:
+            - name: POSTGRES_USER 
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: '12345'
+            - name: POSTGRES_DB
+              value: users
+          resources:
+            limits:
+              cpu: '500m'
+              memory: '1024Mi' 
+          ports:
+            - containerPort: 5432 
+              protocol: TCP
+        - name: users
+          image: users-micro
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: '250m'
+              memory: '512Mi'
+            limits:
+              cpu: '500m'
+              memory: '1024Mi'
+          ports:
+            - containerPort: 4004
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: '4004'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4004
+            initialDelaySeconds: 20
+            timeoutSeconds: 1 #no debe durar la prueba mas de 1 sec
+            periodSeconds: 10 #el periodo de tiempo que debe pasar para volver a intentar
+            failureThreshold: 3

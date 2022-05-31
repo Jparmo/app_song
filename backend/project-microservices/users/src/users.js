@@ -1,6 +1,5 @@
 // const client = require('../../helpers/connection')()
 const { PrismaClient } = require('@prisma/client')
-
 const client =  new PrismaClient()
 
 class Users{
